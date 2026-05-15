@@ -1,0 +1,215 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "PokéAPI Subset for Next.js Pokedex",
+    "description": "Especificación OpenAPI simplificada orientada a los endpoints necesarios para construir la Pokedex con Next.js (App Router) según AGENTS.md.",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://pokeapi.co/api/v2",
+      "description": "Servidor principal de PokéAPI"
+    }
+  ],
+  "paths": {
+    "/pokemon": {
+      "get": {
+        "summary": "Obtener lista de Pokémon",
+        "description": "Retorna una lista paginada de Pokémon. Nota: Solo devuelve nombres y URLs de detalle, ideal para el Server Component inicial.",
+        "parameters": [
+          {
+            "name": "limit",
+            "in": "query",
+            "description": "Cantidad de Pokémon a recuperar (ej. 151 para la primera generación).",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20
+            }
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Desplazamiento para la paginación.",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Lista de Pokémon obtenida con éxito.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PokemonListResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/pokemon/{name}": {
+      "get": {
+        "summary": "Obtener detalle de un Pokémon",
+        "description": "Retorna la información detallada de un Pokémon específico por su nombre o ID. Este endpoint se usará en `Promise.all` para la Home y en `generateStaticParams()` para las páginas de detalle.",
+        "parameters": [
+          {
+            "name": "name",
+            "in": "path",
+            "description": "El nombre o ID del Pokémon.",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Detalles del Pokémon obtenidos con éxito.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PokemonDetail"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Pokémon no encontrado."
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "PokemonListResponse": {
+        "type": "object",
+        "required": ["count", "results"],
+        "properties": {
+          "count": {
+            "type": "integer",
+            "example": 1302
+          },
+          "next": {
+            "type": "string",
+            "nullable": true,
+            "example": "https://pokeapi.co/api/v2/pokemon?offset=20&limit=20"
+          },
+          "previous": {
+            "type": "string",
+            "nullable": true,
+            "example": null
+          },
+          "results": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/NamedAPIResource"
+            }
+          }
+        }
+      },
+      "NamedAPIResource": {
+        "type": "object",
+        "required": ["name", "url"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "bulbasaur"
+          },
+          "url": {
+            "type": "string",
+            "example": "https://pokeapi.co/api/v2/pokemon/1/"
+          }
+        }
+      },
+      "PokemonDetail": {
+        "type": "object",
+        "required": ["id", "name", "sprites", "types", "stats"],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "example": 1
+          },
+          "name": {
+            "type": "string",
+            "example": "bulbasaur"
+          },
+          "height": {
+            "type": "integer",
+            "example": 7
+          },
+          "weight": {
+            "type": "integer",
+            "example": 69
+          },
+          "sprites": {
+            "type": "object",
+            "required": ["other"],
+            "properties": {
+              "front_default": {
+                "type": "string",
+                "nullable": true,
+                "example": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/1.png"
+              },
+              "other": {
+                "type": "object",
+                "properties": {
+                  "official-artwork": {
+                    "type": "object",
+                    "properties": {
+                      "front_default": {
+                        "type": "string",
+                        "example": "https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/1.png"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "types": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["slot", "type"],
+              "properties": {
+                "slot": {
+                  "type": "integer",
+                  "example": 1
+                },
+                "type": {
+                  "$ref": "#/components/schemas/NamedAPIResource"
+                }
+              }
+            }
+          },
+          "stats": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["base_stat", "effort", "stat"],
+              "properties": {
+                "base_stat": {
+                  "type": "integer",
+                  "example": 45
+                },
+                "effort": {
+                  "type": "integer",
+                  "example": 0
+                },
+                "stat": {
+                  "$ref": "#/components/schemas/NamedAPIResource"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
