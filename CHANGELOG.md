@@ -13,6 +13,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [1.2.0] - 2026-05-15
+
+### Added
+- `src/components/PokemonListRow.tsx` — horizontal row layout for the home grid (compact image, padded ID, name, type badges), full-width link to the detail page.
+- View-mode toggle in `SearchBar`: switches the home results between the existing card grid and the new horizontal list view. State lives in the client component; toggle has `aria-pressed` and is grouped under `role="group"`.
+
 ## [1.1.0] - 2026-05-15
 
 ### Added

@@ -3,7 +3,10 @@
 import { useDeferredValue, useMemo, useState } from "react";
 import type { PokemonSummary, PokemonTypeName } from "@/src/types";
 import PokemonCard from "@/src/components/PokemonCard";
+import PokemonListRow from "@/src/components/PokemonListRow";
 import TypeBadge from "@/src/components/TypeBadge";
+
+type ViewMode = "grid" | "list";
 
 interface SearchBarProps {
   pokemon: PokemonSummary[];
@@ -18,12 +21,47 @@ function uniqueTypes(pokemon: PokemonSummary[]): PokemonTypeName[] {
       set.add(type);
     }
   }
-  return Array.from(set).sort();
+  return Array.from(set).sort((a, b) => a.localeCompare(b));
+}
+
+function renderResults({
+  filtered,
+  viewMode,
+}: {
+  filtered: PokemonSummary[];
+  viewMode: ViewMode;
+}) {
+  if (filtered.length === 0) {
+    return (
+      <p className="rounded-xl border border-dashed border-zinc-300 bg-white px-6 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
+        No Pokémon match those filters.
+      </p>
+    );
+  }
+  if (viewMode === "grid") {
+    return (
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
+        {filtered.map((entry, index) => (
+          <PokemonCard key={entry.id} pokemon={entry} priority={index < 6} />
+        ))}
+      </div>
+    );
+  }
+  return (
+    <ul className="flex flex-col gap-2">
+      {filtered.map((entry, index) => (
+        <li key={entry.id}>
+          <PokemonListRow pokemon={entry} priority={index < 6} />
+        </li>
+      ))}
+    </ul>
+  );
 }
 
 export default function SearchBar({ pokemon }: SearchBarProps) {
   const [query, setQuery] = useState("");
   const [activeType, setActiveType] = useState<string>(ALL_TYPES_VALUE);
+  const [viewMode, setViewMode] = useState<ViewMode>("grid");
   const deferredQuery = useDeferredValue(query);
 
   const availableTypes = useMemo(() => uniqueTypes(pokemon), [pokemon]);
@@ -54,9 +92,41 @@ export default function SearchBar({ pokemon }: SearchBarProps) {
             className="rounded-full border border-zinc-300 bg-white px-4 py-2 text-base text-zinc-900 shadow-sm focus:border-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-500/30 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-50"
           />
         </label>
-        <p className="text-sm text-zinc-500 dark:text-zinc-400">
-          {filtered.length} / {pokemon.length} Pokémon
-        </p>
+        <div className="flex items-center gap-4">
+          <p className="text-sm text-zinc-500 dark:text-zinc-400">
+            {filtered.length} / {pokemon.length} Pokémon
+          </p>
+          <div
+            role="group"
+            aria-label="View mode"
+            className="inline-flex rounded-full border border-zinc-300 bg-white p-1 text-xs font-semibold dark:border-zinc-700 dark:bg-zinc-900"
+          >
+            <button
+              type="button"
+              onClick={() => setViewMode("grid")}
+              aria-pressed={viewMode === "grid"}
+              className={`rounded-full px-3 py-1 transition ${
+                viewMode === "grid"
+                  ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              }`}
+            >
+              Grid
+            </button>
+            <button
+              type="button"
+              onClick={() => setViewMode("list")}
+              aria-pressed={viewMode === "list"}
+              className={`rounded-full px-3 py-1 transition ${
+                viewMode === "list"
+                  ? "bg-zinc-900 text-zinc-50 dark:bg-zinc-100 dark:text-zinc-900"
+                  : "text-zinc-600 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100"
+              }`}
+            >
+              List
+            </button>
+          </div>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
@@ -89,21 +159,7 @@ export default function SearchBar({ pokemon }: SearchBarProps) {
         })}
       </div>
 
-      {filtered.length === 0 ? (
-        <p className="rounded-xl border border-dashed border-zinc-300 bg-white px-6 py-12 text-center text-sm text-zinc-500 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-400">
-          No Pokémon match those filters.
-        </p>
-      ) : (
-        <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6">
-          {filtered.map((entry, index) => (
-            <PokemonCard
-              key={entry.id}
-              pokemon={entry}
-              priority={index < 6}
-            />
-          ))}
-        </div>
-      )}
+      {renderResults({ filtered, viewMode })}
     </div>
   );
 }
