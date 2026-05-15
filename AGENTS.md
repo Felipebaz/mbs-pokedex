@@ -58,3 +58,14 @@ src/
 │   └── pokeapi.ts             # Dedicated data fetching client for pokeapi.co
 └── types/                     # Strongly typed interfaces
     └── index.ts               # Pokémon API models and app state specifications
+```
+
+---
+
+## 📦 5. Versioning & Changelog Protocol
+
+1. **Automatic Versioning (SemVer):** Every time you complete a task, introduce a new feature, or fix a bug, you MUST increment the version number in `package.json` before finalizing your response.
+   - Increment **PATCH** for bug fixes, styling tweaks, or minor refactors (e.g., `1.0.0` -> `1.0.1`).
+   - Increment **MINOR** for new functionalities, such as adding the search bar, filters, or components (e.g., `1.0.0` -> `1.1.0`).
+   - Increment **MAJOR** for breaking architectural changes.
+2. **Changelog Updates:** Alongside the version bump, you must log the changes in a `CHANGELOG.md` file in the root directory, strictly following the "Keep a Changelog" standard (categorizing changes under ### Added, ### Changed, or ### Fixed).
