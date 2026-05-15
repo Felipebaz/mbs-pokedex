@@ -13,6 +13,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 
+## [1.2.1] - 2026-05-15
+
+### Changed
+- `README.md` rewritten with a Pokémon-inspired layout: project intro, ASCII Pokédex art, feature matrix, full type-color palette as badges, architecture/build-time diagram, directory tree, scripts table, and project conventions. Replaces the `create-next-app` default scaffolding.
+
 ## [1.2.0] - 2026-05-15
 
 ### Added
